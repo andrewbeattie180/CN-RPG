@@ -1,4 +1,10 @@
 
+let RNG = Math.floor(Math.random()*10)-5;
+
+
+
+
+
 const Character = class {
     constructor(name){
     this.name= name;
