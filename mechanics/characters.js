@@ -1,6 +1,4 @@
 
-
-
 const Character = class {
     constructor(name){
     this.name= name;
@@ -10,22 +8,46 @@ const Character = class {
     this.status=1;  // 1 = alive,  0 = death;
 }}
 
+
 class Enemy extends Character {
     constructor(name, element){
         super (name)
         this.element= element;
-
-    }
-}
-
-
+    }}
 
 
 class Player extends Character{
     constructor(name){
-        super (name)
-      
+      super (name)
+      this.potionCarrying=1
+      this.phoneixDownCarrying=1
     }
+  
+    usePotion(target){
+      if (this.potionCarrying<1){
+        console.log(this.name + "has no potion" )
+      }
+      else{          
+        this.potionCarrying-=1;
+        target.health += 50;
+          if(target.health>100){
+            target.health = 100;
+       }}}
+      
+      usePhoneixDown(target){ 
+      if(this.phoneixDownCarrying<1){
+        console.log(this.name + "has no phoneix down" )
+      }
+      else{
+        this.phoneixDownCarrying-=1;
+          if(target.status==0){
+            console.log(this.name+"used phoneix down on "+ target.name +", he is alive again") 
+            target.status = 1;
+            targt.health=20
+          }
+          else{
+            console.log(this.name + "is already alive, phoneix down has NO EFFECT")
+          }}}
 } 
 
 class Mage extends Player{
@@ -40,9 +62,10 @@ class Mage extends Player{
         this.taunt="     "
     }
     spell(target) {      
-      console.log("Spell casted")
+        console.log(this.element +" Spell casted")
         target.health -= (this.damage)*(battleCheck(this, target))
     }
+  
 
 
 }
@@ -59,21 +82,21 @@ class Healer extends Player{
     }
 
     heal(target) {
-        target.health += 30;
+       target.health += 30;
+      if(target.health>100){
+        target.health = 100;
+      }
     }
 
     revive(target) {      
-       if (target.status == 1) { 
-        console.log( this.name + "casted REVIVE spell, " + target.name +"revived")
+       if (target.status == 0) { 
+        console.log( this.name + " casted REVIVE spell, " + target.name +" revived")
         target.status = 1}
 
        else{
-        console.log( this.name + " tried to REVIVE " + target.name +" but he/she is very is very much alive - NO EFFECT")
-
+        console.log( this.name + " tried to REVIVE " + target.name +" but they are very much alive - NO EFFECT")
        } 
       }
-
-
 }
 
 class Warrior extends Player{
@@ -88,7 +111,7 @@ class Warrior extends Player{
 
     allOutAttack(target) {
         this.health -= 5;
-        target.health -= 25+RNG;
+        target.health -= 25;
     }
 
 }
@@ -97,11 +120,17 @@ class Warrior extends Player{
 
 
 
-const steven = new Healer("Steven")
+const steven = new Warrior("Steven")
 const andrew = new Mage("Andrew", "Fire" )
 const sam = new Healer ("Sam")
-andrew.spell(sam);
 
+steven.status =0;
+steven.allOutAttack(sam)
+
+console.log(sam)
+
+
+andrew.spell(sam);
 const elliot = new Enemy("Elliot", "Water" )
 console.log(steven)
 console.log(andrew)
