@@ -13,12 +13,19 @@ let RNG = () => {
   let randomEnemy = () => {
       let enemies = [new Munchkin(randomElement()),new Slime(randomElement()),new Dragon(randomElement())];
       let number = Math.floor(Math.random()*100)
-      if (number<60){
+      if (number<66){
           return enemies[0]
-      } else if (number>=60 && number <96){
+          // stopDrawingEnemies();
+          // drawSlime();
+      } else if (number>=66 && number <96){
           return enemies[1]
+          // stopDrawingEnemies();
+          // drawMunchkin();
       } else {
           return enemies[2];
+          // stopDrawingEnemies();
+          // drawDragon();
+
       }
       
   }
@@ -74,6 +81,12 @@ let RNG = () => {
     }
     slime(target) {
       console.log(this.name + " slimed " + target.name);
+    }
+    absorb(target){
+      let absorbedHealth = 10 + RNG();
+      console.log(this.name + " absorbed " + absorbedHealth + " of " + target.name +"'s health")
+      target.health -= absorbedHealth;
+      this.health += absorbedHealth;
     }
   }
   
@@ -154,13 +167,7 @@ let RNG = () => {
   let  badGuy=()=>{
     return randomEnemy();
   }
-  const Elliot = badGuy();
-  const Andrew = badGuy();
-  const Steven = badGuy();
-  const Sam = badGuy();
-  console.log(Steven);
-  console.log(Sam);
-  console.log(Elliot);
-  console.log(Andrew);
+  const enemy = badGuy();
+
 
   
