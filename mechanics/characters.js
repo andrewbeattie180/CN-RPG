@@ -24,6 +24,7 @@ class Enemy extends Character {
 class Player extends Character{
     constructor(name){
         super (name)
+      
     }
 } 
 
@@ -39,9 +40,10 @@ class Mage extends Player{
         this.taunt="     "
     }
     spell(target) {      
-      console.log("Speel casted")
+      console.log("Spell casted")
         target.health -= (this.damage)*(battleCheck(this, target))
     }
+
 
 }
 
@@ -59,6 +61,18 @@ class Healer extends Player{
     heal(target) {
         target.health += 30;
     }
+
+    revive(target) {      
+       if (target.status == 1) { 
+        console.log( this.name + "casted REVIVE spell, " + target.name +"revived")
+        target.status = 1}
+
+       else{
+        console.log( this.name + " tried to REVIVE " + target.name +" but he/she is very is very much alive - NO EFFECT")
+
+       } 
+      }
+
 
 }
 
