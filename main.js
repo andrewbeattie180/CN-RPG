@@ -22,44 +22,37 @@ const imgMunchkin  = new Image ();
 let dragonID = null;
 let munchkinID = null;
 let slimeID = null;
-let mageID = null;
-let warriorID = null;
-let healerID = null;
 
-const drawWarriorImage = ()=>{
-    ctx.drawImage(imgWarrior,20,60,100,100)
-    fillText('WARRIOR',70,65,'lime',15);
-    drawBox(10,50,120,120)
-    drawCharacterHealth(this,130,50)
-
-}
 
 const drawWarrior = ()=>{
-    warriorID = setInterval(drawWarriorImage,10);
+    ctx.drawImage(imgWarrior,20,60,100,100)
+    fillText(warrior.name.toUpperCase(),70,65,'lime',15);
+    drawBox(10,50,120,120)
+    drawCharacterHealth(warrior,130,50)
+    drawCharacterSpeedBar(warrior,200,130)
 }
 
-const drawMageImage = ()=>{
-    ctx.drawImage(imgMage,20,180,100,100);
-    fillText('MAGE',70,185,'lime',15);
-    drawBox(10,170,120,120)
-    drawCharacterHealth(this,130,170)
 
-}
 
 const drawMage = ()=>{
-    mageID = setInterval(drawMageImage,10);
+    ctx.drawImage(imgMage,20,180,100,100);
+    fillText(mage.name.toUpperCase(),70,185,'lime',15);
+    drawBox(10,170,120,120)
+    drawCharacterHealth(mage,130,170)
+    drawCharacterSpeedBar(mage,200,250)
 }
 
-const drawHealerImage = ()=>{
-    ctx.drawImage(imgHealer,20,300,100,100)
-    fillText('HEALER',70,305,'lime',15)
-    drawBox(10,290,120,120)
-    drawCharacterHealth(this,130,290)
-}
+
 
 const drawHealer = ()=>{
-    healerID = setInterval(drawHealerImage,10);
+    ctx.drawImage(imgHealer,20,300,100,100)
+    fillText(healer.name.toUpperCase(),70,305,'lime',15)
+    drawBox(10,290,120,120)
+    drawCharacterHealth(healer,130,290)
+    drawCharacterSpeedBar(healer,200, 380)
 }
+
+
 
 const drawBox = (x,y,width,height) =>{
     ctx.beginPath();
@@ -68,7 +61,11 @@ const drawBox = (x,y,width,height) =>{
     ctx.rect(x,y,width,height);
     ctx.stroke();
 }
-
+const drawCharacterSpeedBar = (player,x,y) =>{
+    ctx.clearRect(x,y,(player.turn/500)*100,10);
+    drawBox(x-4,y-4,108,18);
+    ctx.fillRect(x,y,(player.turn/500)*100,10);
+}
 const drawCharacterHealth = (player,x,y) =>{
     let maxHealth = 100;
     ctx.beginPath();
@@ -77,17 +74,17 @@ const drawCharacterHealth = (player,x,y) =>{
     ctx.rect(x,y,200,120);
     ctx.stroke();
     fillText("HEALTH: ",x+40,y+30,'lime',15);
-    // if (player.health < 0) {
-    //     player.health = 0
-    // }
+    if (player.health < 0) {
+        player.health = 0
+    }
     let hbc = 'lime'
-    // if (player.health > 50) {
-    //     hbc = 'lime';
-    // } else if (player.health > 20 && player.health <= 50) {
-    //     hbc = 'yellow';
-    // } else {
-    //     hbc = 'red';
-    // }
+    if (player.health > 50) {
+        hbc = 'lime';
+    } else if (player.health > 20 && player.health <= 50) {
+        hbc = 'yellow';
+    } else {
+        hbc = 'red';
+    }
     ctx.fillStyle = hbc;
     ctx.fillRect(x+70, y+15, (100), 20);
     fillText("100" + "/"+maxHealth,x+105,y+60,'lime',20)
@@ -127,6 +124,7 @@ const drawMunchkinImage = ()=>{
     fillText(enemy.name.toUpperCase(),enemyCenterX,35,'lime',25);
     drawEnemyHealth();
     drawBox(enemyCenterX-150,10,300,80);
+
 }
 
 const drawDragonImage = ()=>{
@@ -153,17 +151,6 @@ const drawSlimeImage = () => {
     drawBox(enemyCenterX-150,10,300,80);
 }
 
-const drawDragon = ()=>{
-    dragonID=setInterval(drawDragonImage,10);
-}
-
-const drawMunchkin = ()=>{
-    munchkinID = setInterval(drawMunchkinImage,10);
-}
-
-const drawSlime = () => {
-    slimeID = setInterval(drawSlimeImage,10);
-}
 
 
 let stage = 1;
@@ -184,21 +171,11 @@ let randomEnemy = () => {
     ];
     let number = Math.floor(Math.random()*100)
     if (number<(67-difficulty)){
-        stopDrawingEnemies();
-        drawSlime();
         return enemies[0]
-
     } else if (number>=(67-difficulty) && number <97-(difficulty)){
-        stopDrawingEnemies();
-        drawMunchkin();
         return enemies[1]
-
     } else {
-        stopDrawingEnemies();
-        drawDragon();
         return enemies[2];
-
-
     }
     
 }
@@ -209,6 +186,7 @@ const fillText = (text, x, y, color, fontSize) => {
     ctx.textAlign = 'center';
     ctx.fillText(text, x, y);
 }
+
 
 
 
@@ -230,9 +208,12 @@ let RNG = () => {
   const Character = class {
     constructor(name) {
       this.name = name;
+      this.turn = 0;
       this.health = 100;
       this.damage = 10;
       this.defence = 1;
+      this.status=1;  // 1 = alive,  0 = death;
+
     }
     attack(target) {
       let damage = Math.floor((this.damage + RNG()) * target.defence);
@@ -253,10 +234,117 @@ let RNG = () => {
     resetDefence(target) {
       target.defence = 1;
     }
-    heal(target) {
-      target.health += 30 + RNG();
-    }
   };
+
+  class Player extends Character{
+    constructor(name){
+      super (name)
+      this.potionCarrying=1
+      this.phoneixDownCarrying=1
+    }
+  
+    basicAttack(target){
+        console.log(this.name +" attack"+ target.name)
+        target.health -= this.damage* target.defence}
+  
+    usePotion(target){
+      if (this.potionCarrying<1){
+        console.log(this.name + "has no potion" )
+      }
+      else{          
+        this.potionCarrying-=1;
+        target.health += 50;
+          if(target.health>100){
+            target.health = 100;
+       }}}
+      
+      usePhoneixDown(target){ 
+      if(this.phoneixDownCarrying<1){
+        console.log(this.name + "has no phoneix down" )
+      }
+      else{
+        this.phoneixDownCarrying-=1;
+          if(target.status==0){
+            console.log(this.name + " use phoneix down on "+ target.name +", he is alive again") 
+            target.status = 1;
+            target.health=20
+          }
+          else{
+            console.log(this.name + "is already alive, phoneix down has NO EFFECT")
+          }}}
+} 
+
+class Mage extends Player{
+
+    constructor(element){
+        super ()
+        this.class="Mage"
+        this.element = element;
+        this.damage=7
+        this.defence=1.2
+        this.speed = 3
+        this.name = this.element + " " + this.class;
+        this.taunt="     "
+    }
+    spell(target) {      
+        console.log(this.element +" Spell casted")
+        target.health -= (this.damage)*(battleCheck(this, target))
+    }
+  
+
+
+}
+
+class Healer extends Player{
+
+    constructor(){
+        super ()
+        this.class="Healer"
+        this.name = this.class
+        this.damage=2
+        this.speed = 4
+        this.defence=1.2
+        this.taunt="     "
+
+    }
+
+    heal(target) {
+       target.health += 30;
+      if(target.health>100){
+        target.health = 100;
+      }
+    }
+
+    revive(target) {      
+       if (target.status == 0) { 
+        console.log( this.name + " casted REVIVE spell, " + target.name +" revived")
+        target.status = 1}
+
+       else{
+        console.log( this.name + " tried to REVIVE " + target.name +" but they are already very much alive - NO EFFECT")
+       } 
+      }
+}
+
+class Warrior extends Player{
+
+    constructor(){
+        super ()
+        
+        this.class="Knight"
+        this.name = this.class;
+        this.damage = 12
+        this.speed = 5
+        this.defence=0.8
+        this.taunt="     "
+    }
+
+    allOutAttack(target) {
+        this.health -= 5;
+        target.health -= 25;
+    }
+
+}
   
   class Enemy extends Character {
     constructor(name) {
@@ -272,6 +360,7 @@ let RNG = () => {
       super(element);
       this.element = element
       this.class = 'Slime'
+      this.speed = 2
       this.name = this.element+ " " + this.class;
       this.health = 70;
       this.defence = 1.1;
@@ -296,7 +385,7 @@ let RNG = () => {
       this.name = this.element +" "+this.class;
       this.defence = 0.9;
       this.health = 100;
-    }
+      this.speed = 5}
     basic() { //needs a target
       console.log(
         this.name +
@@ -319,6 +408,7 @@ let RNG = () => {
     constructor(element){
       super(element);
       this.element = element
+      this.speed = 25
       this.class = "Dragon"
       this.health = 180
       this.name = this.element + " Dragon";
@@ -339,18 +429,7 @@ let RNG = () => {
     }
   }
   
-  class Player extends Character {
-    constructor(name, element, spell) {
-      super(name, element);
-      this.spell = spell;
-    }
-    cast(target) {
-      let damage = (this.damage * battleCheck(this, target))+RNG();
-      console.log(this.name + " used " + this.spell + " on " + target.name + " causing "+damage+" damage");
-      target.health -= damage
-    }
-  }
-  
+
   function indexCheck(element) {
     for (let i = 0; i < elements.length; i++) {
       if (element == elements[i]) {
@@ -374,8 +453,12 @@ let RNG = () => {
       return 1.5;
     }
   }
-
+  let mage = new Mage(randomElement());
+  let warrior = new Warrior();
+  let healer = new Healer ()
   let enemy;
+
+  
 
   function getAllMethodNames(obj) {
     let methods = new Set();
@@ -390,15 +473,39 @@ let RNG = () => {
   let  badGuy=()=>{
     enemy = randomEnemy();
     console.log(enemy)
-    // enemy.basic();
-    // enemy.special();
-;
   }
 
+
+  let speedFunction = ()=>{
+    let players = [warrior,mage,healer,enemy]
+      for (let i = 0;i<players.length;i++){
+          players[i].turn += players[i].speed;
+          if(players[i].turn > 500){
+            console.log("It is "+players[i].name +"'s turn")
+            players[i].turn = 0
+        }
+  }}
+  
+
   let draw = () =>{
-      badGuy();
+      ctx.clearRect(0,0,canvas.width,canvas.height)
       drawWarrior();
       drawMage();
       drawHealer();
   }
-draw();
+let speedID
+let gameID;
+  let game = ()=>{
+      badGuy();
+      gameID = setInterval(draw,10);
+      speedID = setInterval(speedFunction,50)
+      if (enemy.class === "Slime"){
+        slimeID = setInterval(drawSlimeImage,10)
+    }  else if (enemy.class === "Munchkin"){
+        munchkinID = setInterval(drawMunchkinImage,10)
+    } else if (enemy.class === "Dragon"){
+        dragonID = setInterval(drawDragonImage,10)
+    }
+  }
+
+  game();
