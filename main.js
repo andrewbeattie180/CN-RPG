@@ -22,45 +22,37 @@ const imgMunchkin  = new Image ();
 let dragonID = null;
 let munchkinID = null;
 let slimeID = null;
-let mageID = null;
-let warriorID = null;
-let healerID = null;
 
-const drawWarriorImage = ()=>{
+
+const drawWarrior = ()=>{
     ctx.drawImage(imgWarrior,20,60,100,100)
-    fillText('WARRIOR',70,65,'lime',15);
+    fillText(warrior.name.toUpperCase(),70,65,'lime',15);
     drawBox(10,50,120,120)
     drawCharacterHealth(warrior,130,50)
     drawCharacterSpeedBar(warrior,200,130)
 }
 
-const drawWarrior = ()=>{
-    warriorID = setInterval(drawWarriorImage,10);
-}
 
-const drawMageImage = ()=>{
+
+const drawMage = ()=>{
     ctx.drawImage(imgMage,20,180,100,100);
-    fillText('MAGE',70,185,'lime',15);
+    fillText(mage.name.toUpperCase(),70,185,'lime',15);
     drawBox(10,170,120,120)
     drawCharacterHealth(mage,130,170)
     drawCharacterSpeedBar(mage,200,250)
 }
 
-const drawMage = ()=>{
-    mageID = setInterval(drawMageImage,10);
-}
 
-const drawHealerImage = ()=>{
+
+const drawHealer = ()=>{
     ctx.drawImage(imgHealer,20,300,100,100)
-    fillText('HEALER',70,305,'lime',15)
+    fillText(healer.name.toUpperCase(),70,305,'lime',15)
     drawBox(10,290,120,120)
     drawCharacterHealth(healer,130,290)
     drawCharacterSpeedBar(healer,200, 380)
 }
 
-const drawHealer = ()=>{
-    healerID = setInterval(drawHealerImage,10);
-}
+
 
 const drawBox = (x,y,width,height) =>{
     ctx.beginPath();
@@ -70,12 +62,9 @@ const drawBox = (x,y,width,height) =>{
     ctx.stroke();
 }
 const drawCharacterSpeedBar = (player,x,y) =>{
+    ctx.clearRect(x,y,(player.turn/500)*100,10);
     drawBox(x-4,y-4,108,18);
     ctx.fillRect(x,y,(player.turn/500)*100,10);
-    if(player.turn > 500){
-        ctx.clearRect(x,y,(player.turn/500)*100,10);
-        player.turn = 0
-    }
 }
 const drawCharacterHealth = (player,x,y) =>{
     let maxHealth = 100;
@@ -287,14 +276,14 @@ let RNG = () => {
 
 class Mage extends Player{
 
-    constructor(name, element){
-        super (name)
-        this.class="Dark Mage"
+    constructor(element){
+        super ()
+        this.class="Mage"
         this.element = element;
         this.damage=7
         this.defence=1.2
-        this.speed = 10
-        this.name = name + " the " + this.element + " Mage";
+        this.speed = 3
+        this.name = this.element + " " + this.class;
         this.taunt="     "
     }
     spell(target) {      
@@ -308,11 +297,12 @@ class Mage extends Player{
 
 class Healer extends Player{
 
-    constructor(name){
-        super (name)
-        this.class="Medic"
-        this.damage=5
-        this.speed = 9
+    constructor(){
+        super ()
+        this.class="Healer"
+        this.name = this.class
+        this.damage=2
+        this.speed = 4
         this.defence=1.2
         this.taunt="     "
 
@@ -338,11 +328,13 @@ class Healer extends Player{
 
 class Warrior extends Player{
 
-    constructor(name){
-        super (name)
+    constructor(){
+        super ()
+        
         this.class="Knight"
+        this.name = this.class;
         this.damage = 12
-        this.speed = 12
+        this.speed = 5
         this.defence=0.8
         this.taunt="     "
     }
@@ -368,7 +360,7 @@ class Warrior extends Player{
       super(element);
       this.element = element
       this.class = 'Slime'
-      this.speed = 14
+      this.speed = 2
       this.name = this.element+ " " + this.class;
       this.health = 70;
       this.defence = 1.1;
@@ -393,8 +385,7 @@ class Warrior extends Player{
       this.name = this.element +" "+this.class;
       this.defence = 0.9;
       this.health = 100;
-      this.speed = 20
-    }
+      this.speed = 5}
     basic() { //needs a target
       console.log(
         this.name +
@@ -462,9 +453,9 @@ class Warrior extends Player{
       return 1.5;
     }
   }
-  let mage = new Mage("Elliot",'Fire');
-  let warrior = new Warrior('Steven');
-  let healer = new Healer ('Sam')
+  let mage = new Mage(randomElement());
+  let warrior = new Warrior();
+  let healer = new Healer ()
   let enemy;
 
   
@@ -486,12 +477,13 @@ class Warrior extends Player{
 
 
   let speedFunction = ()=>{
-    let startTime = performance.now()
     let players = [warrior,mage,healer,enemy]
       for (let i = 0;i<players.length;i++){
           players[i].turn += players[i].speed;
-    let endTime = performance.now();
-    console.log("Speed function took " + (endTime-startTime));
+          if(players[i].turn > 500){
+            console.log("It is "+players[i].name +"'s turn")
+            players[i].turn = 0
+        }
   }}
   
 
@@ -506,7 +498,7 @@ let gameID;
   let game = ()=>{
       badGuy();
       gameID = setInterval(draw,10);
-      speedID = setInterval(speedFunction,10)
+      speedID = setInterval(speedFunction,50)
       if (enemy.class === "Slime"){
         slimeID = setInterval(drawSlimeImage,10)
     }  else if (enemy.class === "Munchkin"){
