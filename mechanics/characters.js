@@ -23,6 +23,10 @@ class Player extends Character{
       this.phoneixDownCarrying=1
     }
   
+    basicAttack(target){
+        console.log(this.name +" attack"+ target.name)
+        target.health -= this.damage* target.defence}
+  
     usePotion(target){
       if (this.potionCarrying<1){
         console.log(this.name + "has no potion" )
@@ -41,9 +45,9 @@ class Player extends Character{
       else{
         this.phoneixDownCarrying-=1;
           if(target.status==0){
-            console.log(this.name+"used phoneix down on "+ target.name +", he is alive again") 
+            console.log(this.name + " use phoneix down on "+ target.name +", he is alive again") 
             target.status = 1;
-            targt.health=20
+            target.health=20
           }
           else{
             console.log(this.name + "is already alive, phoneix down has NO EFFECT")
@@ -94,7 +98,7 @@ class Healer extends Player{
         target.status = 1}
 
        else{
-        console.log( this.name + " tried to REVIVE " + target.name +" but they are very much alive - NO EFFECT")
+        console.log( this.name + " tried to REVIVE " + target.name +" but they are already very much alive - NO EFFECT")
        } 
       }
 }
@@ -125,13 +129,15 @@ const andrew = new Mage("Andrew", "Fire" )
 const sam = new Healer ("Sam")
 
 steven.status =0;
-steven.allOutAttack(sam)
 
+// console.log(steven)
+// steven.allOutAttack(sam)
 console.log(sam)
+sam.usePhoneixDown(steven)
+console.log(steven)
+
+
 
 
 andrew.spell(sam);
 const elliot = new Enemy("Elliot", "Water" )
-console.log(steven)
-console.log(andrew)
-console.log(sam)
