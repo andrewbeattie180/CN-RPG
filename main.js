@@ -23,7 +23,18 @@ let dragonID = null;
 let munchkinID = null;
 let slimeID = null;
 
+let enterPressed = false;
+let gameInProgress = false;
 
+
+
+function keyDownHandler(e) {
+    e.preventDefault()
+    if (e.keyCode == 13) {
+        console.log("Enter Pressed")
+        enterPressed = true;
+    }
+}
 const drawWarrior = ()=>{
     ctx.drawImage(imgWarrior,20,60,100,100)
     fillText(warrior.name.toUpperCase(),70,65,'lime',15);
@@ -53,7 +64,15 @@ const drawHealer = ()=>{
 }
 
 
+const drawMessage=(text)=>{
+    ctx.clearRect(10,420,canvas.width-20,70);
+    drawBox(10,420, canvas.width-20,70)
+    fillText(text.toUpperCase(),canvasCenterX,470,"lime",40);
+}
 
+const drawActionBox = ()=>{
+    drawBox(10, 500, canvas.width-20,190)
+}
 const drawBox = (x,y,width,height) =>{
     ctx.beginPath();
     ctx.lineWidth="4";
@@ -86,8 +105,8 @@ const drawCharacterHealth = (player,x,y) =>{
         hbc = 'red';
     }
     ctx.fillStyle = hbc;
-    ctx.fillRect(x+70, y+15, (100), 20);
-    fillText("100" + "/"+maxHealth,x+105,y+60,'lime',20)
+    ctx.fillRect(x+70, y+15, (100-(maxHealth-player.health)), 20);
+    fillText(player.health + "/"+maxHealth,x+105,y+60,'lime',20)
 
 }
 const drawEnemyHealth = () => {
@@ -106,12 +125,6 @@ const drawEnemyHealth = () => {
     ctx.fillStyle = hbc;
     ctx.fillRect(550, 45, (100 - (100 - enemy.health)), 20);
 
-}
-
-const stopDrawingEnemies = ()=>{
-    dragonID = null;
-    munchkinID = null;
-    slimeID = null;
 }
 
 const drawMunchkinImage = ()=>{
@@ -152,11 +165,11 @@ const drawSlimeImage = () => {
 }
 
 
-
+let inventory = [];
 let stage = 1;
 let difficulty = stage*stage;
+
 let difficultyCheck = ()=>{
-    // console.log(difficulty)
     if (difficulty>=65){
         difficulty = 65
     }
@@ -218,7 +231,7 @@ let RNG = () => {
     attack(target) {
       let damage = Math.floor((this.damage + RNG()) * target.defence);
       console.log(
-        this.name +
+        currentPlayer.name +
           " attacked " +
           target.name +
           " and caused " +
@@ -228,7 +241,7 @@ let RNG = () => {
       target.health -= damage;
     }
     defend() {
-      console.log(this.name + " raised it's shield");
+      console.log(currentPlayer.name + " raised it's shield");
       this.defence * 0.5;
     }
     resetDefence(target) {
@@ -239,39 +252,12 @@ let RNG = () => {
   class Player extends Character{
     constructor(name){
       super (name)
-      this.potionCarrying=1
-      this.phoneixDownCarrying=1
     }
-  
-    basicAttack(target){
-        console.log(this.name +" attack"+ target.name)
-        target.health -= this.damage* target.defence}
-  
-    usePotion(target){
-      if (this.potionCarrying<1){
-        console.log(this.name + "has no potion" )
-      }
-      else{          
-        this.potionCarrying-=1;
-        target.health += 50;
-          if(target.health>100){
-            target.health = 100;
-       }}}
-      
-      usePhoneixDown(target){ 
-      if(this.phoneixDownCarrying<1){
-        console.log(this.name + "has no phoneix down" )
-      }
-      else{
-        this.phoneixDownCarrying-=1;
-          if(target.status==0){
-            console.log(this.name + " use phoneix down on "+ target.name +", he is alive again") 
-            target.status = 1;
-            target.health=20
-          }
-          else{
-            console.log(this.name + "is already alive, phoneix down has NO EFFECT")
-          }}}
+    openInventory(){
+        if (inventory.length === 0){
+        console.log("Oh frack, your bag is empty")
+    }
+} 
 } 
 
 class Mage extends Player{
@@ -290,7 +276,10 @@ class Mage extends Player{
         console.log(this.element +" Spell casted")
         target.health -= (this.damage)*(battleCheck(this, target))
     }
-  
+    focus(target){
+        console.log(this.name + " has concentrated their powers")
+        this.damage = this.damage*1.1;
+    }
 
 
 }
@@ -334,7 +323,7 @@ class Warrior extends Player{
         this.class="Knight"
         this.name = this.class;
         this.damage = 12
-        this.speed = 5
+        this.speed = 1
         this.defence=0.8
         this.taunt="     "
     }
@@ -343,14 +332,20 @@ class Warrior extends Player{
         this.health -= 5;
         target.health -= 25;
     }
+    rage(target){
+        console.log(this.name + " is angry")
+        this.damage = this.damage*1.2;
+        this.defence= this.defence*1.2;
+    }
 
 }
   
   class Enemy extends Character {
     constructor(name) {
       super(name);
+      this.name = name;
     }
-    cackle() {
+    cackle(target) {
       console.log(this.name + " cackled manically");
     }
   }
@@ -365,14 +360,14 @@ class Warrior extends Player{
       this.health = 70;
       this.defence = 1.1;
     }
-    basic() {
-      console.log(this.name + " slimed the player");
-    //   target.health -= (this.damage * battleCheck(this,target))+RNG();
+    basic(target) {
+      console.log(currentPlayer.name + " slimed "+target.name);
+      target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
     }
-    special(){
+    special(target){
         let absorbedHealth = 10 + RNG();
-        console.log(this.name + " absorbed " + absorbedHealth + " of player's health")
-        // target.health -= absorbedHealth;
+        console.log(currentPlayer.name + " absorbed " + absorbedHealth + " of "+target.name+"'s health")
+        target.health -= absorbedHealth;
         this.health += absorbedHealth;
       }
   }
@@ -386,20 +381,19 @@ class Warrior extends Player{
       this.defence = 0.9;
       this.health = 100;
       this.speed = 5}
-    basic() { //needs a target
+    basic(target) { //needs a target
       console.log(
-        this.name +
+        currentPlayer.name +
           " raised it's sword and smashed " +
-        //   target.name +
-          "player but it's defence has wobbled"
+          target.name +
+          " but it's defence has wobbled"
       );
-    //   target.health -= 20 + RNG();
-    //   this.defence += 0.05 * RNG();
+      target.health -= 20 + RNG();
+      currentPlayer.defence += 0.05 * RNG();
     }
-    special(){
-        // console.log(target.name + " is scared");
-        console.log("Player is scared to attack")
-        // target.damage = target.damage*0.8
+    special(target){
+        console.log(target.name + " is scared");
+        target.damage = target.damage*0.8
     }
 
   }
@@ -413,22 +407,23 @@ class Warrior extends Player{
       this.health = 180
       this.name = this.element + " Dragon";
     }
-    basic(){
+    basic(target){
         let probability = (RNG() + 5)/10;
         if (probability < 0.75){
       console.log('FUUUUUUUUUUUUUUUUUUUUUUUU............')
-    //   target.health -= 70 + RNG();
+      target.health -= 70 + RNG();
     } else {
-        // console.log(target.name + " somehow rolled out of the way")
-        console.log("Player dodged")
+        console.log(target.name + " somehow rolled out of the way")
     }
 }
-    special(){
-      console.log(this.name + " attacked player with elemental flames");
-    //   target.health -= (this.damage * battleCheck(this,target))+RNG();
+    special(target){
+      console.log(currentPlayer.name + " attacked " +target.name +" with elemental flames");
+      target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
     }
   }
   
+
+
 
   function indexCheck(element) {
     for (let i = 0; i < elements.length; i++) {
@@ -466,46 +461,183 @@ class Warrior extends Player{
       let keys = Reflect.ownKeys(obj)
       keys.forEach((k) => methods.add(k));
     }
-    return methods;
+    return [...methods];
   }
   
+  const action = (player)=>{
+      console.log(player)
+      if(player.class === 'Munchkin'||player.class==="Dragon"||player.class==="Slime"){
+        let targets = [healer,mage,warrior];
+        let target = targets[Math.floor(Math.random()*3)]
+        let actions = [
+          player.attack,
+          player.defend,
+          player.cackle,
+          player.basic,
+          player.special
+        ];
+        let enemyRNG = (RNG()+5);
+        if (enemyRNG > 4){
+            enemyRNG = enemyRNG - 5;
+        }
+        actions[enemyRNG](target)
+        console.log(enemyRNG)
+        actionUnpauseFunction();
+    }
+  }
  
   let  badGuy=()=>{
     enemy = randomEnemy();
-    console.log(enemy)
   }
 
+  const blinkingText = (text, x, y, frequency, color, fontSize) => {
+    if (~~(0.5 + Date.now() / frequency) % 2) {
+        fillText(text, x, y, color, fontSize)
+    }
+}
+let temp = [];
+let actionPaused = false;
 
-  let speedFunction = ()=>{
+const actionPauseFunction = ()=>{
+    actionPaused = true;
+    let players = [warrior,mage,healer,enemy]
+    for(let j = 0;j<players.length;j++){
+        temp.push(players[j].speed)
+          players[j].speed = 0;
+    }    
+}
+
+const actionPauseCheck = ()=>{
+    if(actionPaused && currentPlayer !== null){
+        drawMessage("it is " + currentPlayer.name + "'s turn")
+    }
+}
+
+const actionUnpauseFunction = ()=>{
+    actionPaused = false
+    let players = [warrior,mage,healer,enemy]
+    for (let j = 0;j<players.length;j++){
+        currentPlayer.turn = 0;
+        players[j].speed = temp[j];
+    }
+    temp=[];
+}
+let drawMessageID;
+
+let currentPlayer = null;
+
+let speedFunction = ()=>{
     let players = [warrior,mage,healer,enemy]
       for (let i = 0;i<players.length;i++){
           players[i].turn += players[i].speed;
           if(players[i].turn > 500){
-            console.log("It is "+players[i].name +"'s turn")
-            players[i].turn = 0
+              currentPlayer = players[i];
+              actionPauseFunction();
+              setTimeout(action(currentPlayer),1500);
+            }
         }
-  }}
+  }
   
+const drawActions = ()=>{
+        let array = getAllMethodNames(currentPlayer)
+        console.log(array)
+    }
+
 
   let draw = () =>{
       ctx.clearRect(0,0,canvas.width,canvas.height)
       drawWarrior();
       drawMage();
       drawHealer();
+      drawActionBox();
+      actionPauseCheck();
+
   }
 let speedID
 let gameID;
-  let game = ()=>{
-      badGuy();
-      gameID = setInterval(draw,10);
-      speedID = setInterval(speedFunction,50)
-      if (enemy.class === "Slime"){
+let loadScreenID = null;
+let creditsScreenDisplayed = false;
+let creditScreenId = null;
+
+const end = (func) => {
+    clearInterval(func)
+}
+
+const drawEnemy = ()=>{
+    if (enemy.class === "Slime"){
         slimeID = setInterval(drawSlimeImage,10)
     }  else if (enemy.class === "Munchkin"){
         munchkinID = setInterval(drawMunchkinImage,10)
     } else if (enemy.class === "Dragon"){
         dragonID = setInterval(drawDragonImage,10)
     }
+}
+const loadScreen = ()=>{
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fillText("DUNGEON BALTI ", canvas.width / 2, canvas.height / 2.75, '#00FF00', 75);
+    blinkingText('Press Enter', canvas.width / 2, canvas.height / 2, 500, '#00FF00', 60);
+    fillText("Press C for credits", canvas.width - 90, canvas.height - 20, 'lime', 20)
+}
+
+  let game = ()=>{
+      end(loadScreenID)
+      badGuy();
+      gameID = setInterval(draw,10);
+      speedID = setInterval(speedFunction,50)
+      drawEnemy();
   }
 
-  game();
+const runGame = ()=>{
+    if (!enterPressed && !gameInProgress && !creditsScreenDisplayed){
+        loadScreenID = setInterval(loadScreen,10);
+    } else {
+        end(loadScreenID)
+        loadScreenID = null;
+    }
+    if (enterPressed && !gameInProgress && !creditsScreenDisplayed) {
+        enterPressed = false;
+        gameInProgress = true;
+        game();
+    }
+}
+
+
+
+const creditsScreen = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fillText('CREDITS', canvasCenterX, canvasCenterY, 'lime', 40);
+    fillText('Developed by', canvasCenterX, canvasCenterY + 40, 'lime', 30);
+    fillText('Andrew Beattie, Seng Ng', canvasCenterX, canvasCenterY + 70, 'lime', 20);
+    fillText('Game icons from: game-icons.net', canvasCenterX, canvasCenterY + 100, 'lime', 25);
+};
+
+const creditsScreenFunction = (e) => {
+    if (!enterPressed && !gameInProgress) {
+        if (e.keyCode === 67) {
+            creditsScreenDisplayed = !creditsScreenDisplayed;
+            if (creditsScreenDisplayed) {
+                console.log(loadScreenID)
+                end(dungeonBalti);
+                end(loadScreenID);
+                creditScreenId = setInterval(creditsScreen, 10);
+                console.log('credits shown - error check')
+            } else if (!creditsScreenDisplayed) {
+                console.log('credits hidden');
+                end(creditScreenId);
+                creditScreenId = null;
+                runGame();
+            }
+        }
+    }
+}
+
+const dungeonBalti = (e) => {
+    if (e.keyCode == 13) {
+        runGame();
+    }
+}
+runGame();
+
+document.addEventListener("keydown", keyDownHandler, false)
+document.addEventListener("keydown", dungeonBalti, false)
+document.addEventListener('keydown', creditsScreenFunction, false);
