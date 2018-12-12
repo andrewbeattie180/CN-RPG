@@ -67,12 +67,10 @@ const drawHealer = ()=>{
 const drawMessage=(text)=>{
     ctx.clearRect(10,420,canvas.width-20,70);
     drawBox(10,420, canvas.width-20,70)
-    fillText(text.toUpperCase(),canvasCenterX,470,"lime",40);
+    fillText(text.toUpperCase(),canvasCenterX,470,"lime",20);
 }
 
-const drawActionBox = ()=>{
-    drawBox(10, 500, canvas.width-20,190)
-}
+
 const drawBox = (x,y,width,height) =>{
     ctx.beginPath();
     ctx.lineWidth="4";
@@ -81,9 +79,9 @@ const drawBox = (x,y,width,height) =>{
     ctx.stroke();
 }
 const drawCharacterSpeedBar = (player,x,y) =>{
-    ctx.clearRect(x,y,(player.turn/500)*100,10);
+    ctx.clearRect(x,y,(player.turn/800)*100,10);
     drawBox(x-4,y-4,108,18);
-    ctx.fillRect(x,y,(player.turn/500)*100,10);
+    ctx.fillRect(x,y,(player.turn/800)*100,10);
 }
 const drawCharacterHealth = (player,x,y) =>{
     let maxHealth = 100;
@@ -164,7 +162,7 @@ const drawSlimeImage = () => {
     drawBox(enemyCenterX-150,10,300,80);
 }
 
-
+let playerTurn = false;
 let inventory = [];
 let stage = 1;
 let difficulty = stage*stage;
@@ -200,9 +198,9 @@ const fillText = (text, x, y, color, fontSize) => {
     ctx.fillText(text, x, y);
 }
 
+let actionInProgress = false
 
-
-
+let currentMessage = "Welcome to Dungeon Balti";
 
 let RNG = () => {
     return Math.floor(Math.random() * 10) - 5;
@@ -229,23 +227,14 @@ let RNG = () => {
 
     }
     attack(target) {
-      let damage = Math.floor((this.damage + RNG()) * target.defence);
-      console.log(
-        currentPlayer.name +
-          " attacked " +
-          target.name +
-          " and caused " +
-          damage +
-          " damage"
-      );
-      target.health -= damage;
-    }
+      let damage = Math.floor((currentPlayer.damage + RNG()) * target.defence);
+        currentMessage = currentPlayer.name + " attacked " + target.name + " and caused " + damage + " damage";
+        target.health -= damage;
+        }
     defend() {
-      console.log(currentPlayer.name + " raised it's shield");
-      this.defence * 0.5;
-    }
-    resetDefence(target) {
-      target.defence = 1;
+      currentMessage =   currentPlayer.name + " raised it's shield"
+    //   console.log(currentPlayer.name + " raised it's shield");
+      currentPlayer.defence * 0.5;
     }
   };
 
@@ -268,17 +257,19 @@ class Mage extends Player{
         this.element = element;
         this.damage=7
         this.defence=1.2
-        this.speed = 3
+        this.speed = 6
         this.name = this.element + " " + this.class;
-        this.taunt="     "
+        this.attackA = "CAST SPELL"
+        this.attackB = "FOCUS"
     }
-    spell(target) {      
-        console.log(this.element +" Spell casted")
-        target.health -= (this.damage)*(battleCheck(this, target))
+    attackOne(target) {      
+        let damage = Math.floor(currentPlayer.damage)*(battleCheck(currentPlayer, target))
+        currentMessage = currentPlayer.name + " cast " + currentPlayer.element + " for " + damage + " damage";
+        target.health -= damage
     }
-    focus(target){
-        console.log(this.name + " has concentrated their powers")
-        this.damage = this.damage*1.1;
+    attackTwo(target){
+        currentMessage = currentPlayer.name + " has concentrated their powers";
+        currentPlayer.damage = currentPlayer.damage*1.1;
     }
 
 
@@ -294,26 +285,34 @@ class Healer extends Player{
         this.speed = 4
         this.defence=1.2
         this.taunt="     "
+        this.attackA = "HEAL"
+        this.attackB = "REVIVE"
 
     }
 
-    heal(target) {
-       target.health += 30;
+    attackOne(target) {
+        currentMessage = currentPlayer.name + " healed their team"
+    let team = [warrior,mage,healer]
+      for(i=0;i<team.length;i++){
+        team[i].health += 30 +RNG();
       if(target.health>100){
         target.health = 100;
       }
     }
-
-    revive(target) {      
-       if (target.status == 0) { 
-        console.log( this.name + " casted REVIVE spell, " + target.name +" revived")
-        target.status = 1}
-
-       else{
-        console.log( this.name + " tried to REVIVE " + target.name +" but they are already very much alive - NO EFFECT")
+    }
+    attackTwo(target) {  
+        let team = [warrior,healer,mage]
+        for (let i = 0;i<team.length;i++){   
+            if (team[i].status == 0) { 
+        currentMessage =  currentPlayer.name + " casted REVIVE spell, " + team[i].name +"is revived";
+        team[i].status = 1;
+        } else {
+        currentMessage = currentPlayer.name + " tried to REVIVE " + team[i].name +" but they are already very much alive - NO EFFECT";
        } 
       }
+    }
 }
+
 
 class Warrior extends Player{
 
@@ -326,16 +325,19 @@ class Warrior extends Player{
         this.speed = 1
         this.defence=0.8
         this.taunt="     "
+        this.attackA = "GO ALL OUT"
+        this.attackB = "RAGE"
     }
 
     allOutAttack(target) {
-        this.health -= 5;
+        currentMessage = currentPlayer.name + " attacked with all their might and did 25 damage"
+        currentPlayer.health -= 5;
         target.health -= 25;
     }
     rage(target){
-        console.log(this.name + " is angry")
-        this.damage = this.damage*1.2;
-        this.defence= this.defence*1.2;
+        currentMessage = currentPlayer.name + " is angry";
+        currentPlayer.damage = currentPlayer.damage*1.2;
+        currentPlayer.defence= currentPlayer.defence*1.2;
     }
 
 }
@@ -346,7 +348,7 @@ class Warrior extends Player{
       this.name = name;
     }
     cackle(target) {
-      console.log(this.name + " cackled manically");
+        currentMessage = currentPlayer.name + " cackled manically";
     }
   }
   
@@ -361,12 +363,12 @@ class Warrior extends Player{
       this.defence = 1.1;
     }
     basic(target) {
-      console.log(currentPlayer.name + " slimed "+target.name);
+      currentMessage = currentPlayer.name + " slimed " + target.name 
       target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
     }
     special(target){
         let absorbedHealth = 10 + RNG();
-        console.log(currentPlayer.name + " absorbed " + absorbedHealth + " of "+target.name+"'s health")
+        currentMessage = currentPlayer.name + " absorbed " + absorbedHealth + " of "+target.name+"'s health";
         target.health -= absorbedHealth;
         this.health += absorbedHealth;
       }
@@ -381,18 +383,18 @@ class Warrior extends Player{
       this.defence = 0.9;
       this.health = 100;
       this.speed = 5}
-    basic(target) { //needs a target
-      console.log(
+    basic(target) { 
+      currentMessage = 
         currentPlayer.name +
           " raised it's sword and smashed " +
           target.name +
           " but it's defence has wobbled"
-      );
+      ;
       target.health -= 20 + RNG();
       currentPlayer.defence += 0.05 * RNG();
     }
     special(target){
-        console.log(target.name + " is scared");
+        currentMessage = currentPlayer.name + " roared and " + target.name + " is scared";
         target.damage = target.damage*0.8
     }
 
@@ -402,7 +404,7 @@ class Warrior extends Player{
     constructor(element){
       super(element);
       this.element = element
-      this.speed = 25
+      this.speed = 10
       this.class = "Dragon"
       this.health = 180
       this.name = this.element + " Dragon";
@@ -410,19 +412,35 @@ class Warrior extends Player{
     basic(target){
         let probability = (RNG() + 5)/10;
         if (probability < 0.75){
-      console.log('FUUUUUUUUUUUUUUUUUUUUUUUU............')
+        let damage = 70 + RNG();  
+      currentMessage = currentPlayer.name + " incinerated " + target.name + " causing " + damage + " damage!"
       target.health -= 70 + RNG();
     } else {
-        console.log(target.name + " somehow rolled out of the way")
+      currentMessage = target.name + " somehow rolled out of the way of the flames"
     }
 }
     special(target){
-      console.log(currentPlayer.name + " attacked " +target.name +" with elemental flames");
+      currentMessage = currentPlayer.name + " attacked " +target.name +" with elemental flames";
       target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
     }
   }
   
-
+  const performAction = (e) =>{
+      if (playerTurn){
+          if(e.keyCode == 49){
+              currentPlayer.attack(enemy)
+          } else if (e.keyCode == 50){
+              currentPlayer.defend()
+          } else if (e.keyCode == 51){
+              currentPlayer.attackOne(enemy)
+          } else if (e.keyCode == 52){
+              currentPlayer.attackTwo(enemy)
+          }
+          
+          playerTurn = false;
+          actionUnpauseFunction();
+      }
+  }
 
 
   function indexCheck(element) {
@@ -434,17 +452,18 @@ class Warrior extends Player{
   }
   
   function battleCheck(hero, enemy) {
+    if (!enemy.element){
+        enemy.element = hero.element
+    }
     let attack = indexCheck(hero.element);
     let defence = indexCheck(enemy.element);
+   
     let output = attack - defence;
     if (output == -1 || output == 2) {
-      console.log("Weak ass attempt");
       return 0.5;
     } else if (output === 0) {
-      console.log("Solid hit");
       return 1;
     } else if (output === -2 || output === 1) {
-      console.log("Super effective bro");
       return 1.5;
     }
   }
@@ -452,22 +471,9 @@ class Warrior extends Player{
   let warrior = new Warrior();
   let healer = new Healer ()
   let enemy;
-
   
-
-  function getAllMethodNames(obj) {
-    let methods = new Set();
-    while (obj = Reflect.getPrototypeOf(obj)) {
-      let keys = Reflect.ownKeys(obj)
-      keys.forEach((k) => methods.add(k));
-    }
-    return [...methods];
-  }
-  
-  const action = (player)=>{
-      console.log(player)
-      if(player.class === 'Munchkin'||player.class==="Dragon"||player.class==="Slime"){
-        let targets = [healer,mage,warrior];
+  const enemyActions = (player)=>{
+    let targets = [healer,mage,warrior];
         let target = targets[Math.floor(Math.random()*3)]
         let actions = [
           player.attack,
@@ -480,10 +486,17 @@ class Warrior extends Player{
         if (enemyRNG > 4){
             enemyRNG = enemyRNG - 5;
         }
-        actions[enemyRNG](target)
-        console.log(enemyRNG)
+        actions[enemyRNG](target);
+  }
+
+
+  const action = (player)=>{
+      if(player.class === 'Munchkin'||player.class==="Dragon"||player.class==="Slime"){
+        enemyActions(player);
         actionUnpauseFunction();
-    }
+        } else {
+        playerTurn = true;    
+        }
   }
  
   let  badGuy=()=>{
@@ -509,7 +522,7 @@ const actionPauseFunction = ()=>{
 
 const actionPauseCheck = ()=>{
     if(actionPaused && currentPlayer !== null){
-        drawMessage("it is " + currentPlayer.name + "'s turn")
+        currentMessage = "it is " + currentPlayer.name + "'s turn";
     }
 }
 
@@ -522,7 +535,7 @@ const actionUnpauseFunction = ()=>{
     }
     temp=[];
 }
-let drawMessageID;
+
 
 let currentPlayer = null;
 
@@ -530,17 +543,26 @@ let speedFunction = ()=>{
     let players = [warrior,mage,healer,enemy]
       for (let i = 0;i<players.length;i++){
           players[i].turn += players[i].speed;
-          if(players[i].turn > 500){
+          if(players[i].turn > 800){
               currentPlayer = players[i];
               actionPauseFunction();
-              setTimeout(action(currentPlayer),1500);
+              action(currentPlayer)
             }
         }
   }
+
+  const drawActionBox = ()=>{
+    drawBox(10, 500, canvas.width-20,190)
+}
   
 const drawActions = ()=>{
-        let array = getAllMethodNames(currentPlayer)
-        console.log(array)
+        if(playerTurn === true){
+            fillText("1 ATTACK",canvasCenterX/2,560,'lime',45);
+            fillText('2 DEFEND',canvasCenterX/2,610,'lime',45);
+            fillText('INVENTORY',canvasCenterX/2,660,'lime',45)
+            fillText('3 '+ currentPlayer.attackA,canvasCenterX + canvasCenterX/2,560,'lime',45);
+            fillText('4 '+ currentPlayer.attackB,canvasCenterX + canvasCenterX/2,610,'lime',45)
+        }
     }
 
 
@@ -550,6 +572,8 @@ const drawActions = ()=>{
       drawMage();
       drawHealer();
       drawActionBox();
+      drawActions()
+      drawMessage(currentMessage);
       actionPauseCheck();
 
   }
@@ -641,3 +665,4 @@ runGame();
 document.addEventListener("keydown", keyDownHandler, false)
 document.addEventListener("keydown", dungeonBalti, false)
 document.addEventListener('keydown', creditsScreenFunction, false);
+document.addEventListener('keydown',performAction,false);
