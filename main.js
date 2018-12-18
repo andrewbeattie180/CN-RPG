@@ -15,14 +15,9 @@ imgMage.src = './img/wizard-face.svg';
 const imgHealer = new Image ();
 imgHealer.src = './img/woman-elf-face.svg';
 
-const imgSlime = new Image ()
-const imgDragon = new Image ();
-const imgMunchkin  = new Image ();
+const imgEnemy = new Image();
 
-let dragonID = null;
-let munchkinID = null;
-let slimeID = null;
-
+let enemyID = null;
 let enterPressed = false;
 let gameInProgress = false;
 
@@ -35,6 +30,7 @@ function keyDownHandler(e) {
         enterPressed = true;
     }
 }
+
 const drawWarrior = ()=>{
     ctx.drawImage(imgWarrior,20,60,100,100)
     fillText(warrior.name.toUpperCase(),70,65,'lime',15);
@@ -42,9 +38,6 @@ const drawWarrior = ()=>{
     drawCharacterHealth(warrior,130,50)
     drawCharacterSpeedBar(warrior,200,130)
 }
-
-
-
 const drawMage = ()=>{
     ctx.drawImage(imgMage,20,180,100,100);
     fillText(mage.name.toUpperCase(),70,185,'lime',15);
@@ -52,9 +45,6 @@ const drawMage = ()=>{
     drawCharacterHealth(mage,130,170)
     drawCharacterSpeedBar(mage,200,250)
 }
-
-
-
 const drawHealer = ()=>{
     ctx.drawImage(imgHealer,20,300,100,100)
     fillText(healer.name.toUpperCase(),70,305,'lime',15)
@@ -62,15 +52,12 @@ const drawHealer = ()=>{
     drawCharacterHealth(healer,130,290)
     drawCharacterSpeedBar(healer,200, 380)
 }
-
-
 const drawMessage=(text)=>{
     ctx.clearRect(10,420,canvas.width-20,70);
     drawBox(10,420, canvas.width-20,70)
     fillText(text.toUpperCase(),canvasCenterX,470,"lime",20);
 }
-
-
+ 
 const drawBox = (x,y,width,height) =>{
     ctx.beginPath();
     ctx.lineWidth="4";
@@ -125,38 +112,9 @@ const drawEnemyHealth = () => {
 
 }
 
-const drawMunchkinImage = ()=>{
-    if (enemy.element === 'Fire'){
-        imgMunchkin.src = './img/munchkin-fire.svg'; 
-    } else if (enemy.element === 'Grass'){
-        imgMunchkin.src = './img/munchkin-grass.svg'
-    } else {imgMunchkin.src = './img/munchkin-water.svg'}
-    ctx.drawImage(imgMunchkin,enemyCenterX-200/2,enemyCenterY-200/2, 200,200);
-    fillText(enemy.name.toUpperCase(),enemyCenterX,35,'lime',25);
-    drawEnemyHealth();
-    drawBox(enemyCenterX-150,10,300,80);
-
-}
-
-const drawDragonImage = ()=>{
-    if (enemy.element === 'Fire'){
-        imgDragon.src = './img/wyvern-fire.svg'; 
-    } else if (enemy.element === 'Grass'){
-        imgDragon.src = './img/wyvern-grass.svg'
-    } else {imgDragon.src = './img/wyvern-water.svg'}
-    ctx.drawImage(imgDragon,enemyCenterX-350/2,enemyCenterY-350/2,350,350);
-    fillText(enemy.name.toUpperCase(),enemyCenterX,35,'lime',25);
-    drawEnemyHealth();
-    drawBox(enemyCenterX-150,10,300,80);
-}
-
-const drawSlimeImage = () => {
-    if (enemy.element === 'Fire'){
-        imgSlime.src = './img/slime-fire.svg'; 
-    } else if (enemy.element === 'Grass'){
-        imgSlime.src = './img/slime-grass.svg'
-    } else {imgSlime.src = './img/slime-water.svg'}
-    ctx.drawImage(imgSlime,enemyCenterX-150/2,enemyCenterY-150/2,150,150);
+const drawEnemyImage = () => {
+    imgEnemy.src = './img/'+enemy.class+enemy.element+'.svg'; 
+    ctx.drawImage(imgEnemy,enemyCenterX-150/2,enemyCenterY-150/2,150,150);
     fillText(enemy.name.toUpperCase(),enemyCenterX,35,'lime',25);
     drawEnemyHealth();
     drawBox(enemyCenterX-150,10,300,80);
@@ -588,14 +546,9 @@ const end = (func) => {
 }
 
 const drawEnemy = ()=>{
-    if (enemy.class === "Slime"){
-        slimeID = setInterval(drawSlimeImage,10)
-    }  else if (enemy.class === "Munchkin"){
-        munchkinID = setInterval(drawMunchkinImage,10)
-    } else if (enemy.class === "Dragon"){
-        dragonID = setInterval(drawDragonImage,10)
-    }
+        enemyID = setInterval(drawEnemyImage,10)
 }
+
 const loadScreen = ()=>{
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     fillText("DUNGEON BALTI ", canvas.width / 2, canvas.height / 2.75, '#00FF00', 75);
@@ -665,4 +618,4 @@ runGame();
 document.addEventListener("keydown", keyDownHandler, false)
 document.addEventListener("keydown", dungeonBalti, false)
 document.addEventListener('keydown', creditsScreenFunction, false);
-document.addEventListener('keydown',performAction,false);
+document.addEventListener('keydown', performAction, false);
