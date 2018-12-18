@@ -31,6 +31,7 @@ function keyDownHandler(e) {
     }
 }
 
+<<<<<<< HEAD
 const drawCharacter = (character, index) => {
     ctx.drawImage(character.image, 20, 60 + 120 * index, 100, 100);
     if (character.status === 1){
@@ -48,6 +49,36 @@ const drawMessage = (text) => {
 }
 
 const drawBox = (x, y, width, height) => {
+=======
+const drawWarrior = ()=>{
+    ctx.drawImage(imgWarrior,20,60,100,100)
+    fillText(warrior.name.toUpperCase(),70,65,'lime',15);
+    drawBox(10,50,120,120)
+    drawCharacterHealth(warrior,130,50)
+    drawCharacterSpeedBar(warrior,200,130)
+}
+const drawMage = ()=>{
+    ctx.drawImage(imgMage,20,180,100,100);
+    fillText(mage.name.toUpperCase(),70,185,'lime',15);
+    drawBox(10,170,120,120)
+    drawCharacterHealth(mage,130,170)
+    drawCharacterSpeedBar(mage,200,250)
+}
+const drawHealer = ()=>{
+    ctx.drawImage(imgHealer,20,300,100,100)
+    fillText(healer.name.toUpperCase(),70,305,'lime',15)
+    drawBox(10,290,120,120)
+    drawCharacterHealth(healer,130,290)
+    drawCharacterSpeedBar(healer,200, 380)
+}
+const drawMessage=(text)=>{
+    ctx.clearRect(10,420,canvas.width-20,70);
+    drawBox(10,420, canvas.width-20,70)
+    fillText(text.toUpperCase(),canvasCenterX,470,"lime",20);
+}
+ 
+const drawBox = (x,y,width,height) =>{
+>>>>>>> tidied up the enemy draw function and renamed the image files
     ctx.beginPath();
     ctx.lineWidth = "4";
     ctx.strokeStyle = "lime";
@@ -103,11 +134,16 @@ const drawEnemyHealth = () => {
     }
     fillText("HEALTH: ", 500, 60, hbc, 17);
     ctx.fillStyle = hbc;
+<<<<<<< HEAD
     ctx.fillRect(550, 45, (100 - (enemy.maxHealth - enemy.health)*100/enemy.maxHealth), 20);
+=======
+    ctx.fillRect(550, 45, (100 - (100 - enemy.health)), 20);
+>>>>>>> tidied up the enemy draw function and renamed the image files
 
 }
 
 const drawEnemyImage = () => {
+<<<<<<< HEAD
     healthCheck(enemy);
     ctx.clearRect(400,5,400,350);
     if (enemy.status === 1){
@@ -117,6 +153,13 @@ const drawEnemyImage = () => {
     drawEnemyHealth();
     drawBox(enemyCenterX - 150, 10, 300, 80);
     }
+=======
+    imgEnemy.src = './img/'+enemy.class+enemy.element+'.svg'; 
+    ctx.drawImage(imgEnemy,enemyCenterX-150/2,enemyCenterY-150/2,150,150);
+    fillText(enemy.name.toUpperCase(),enemyCenterX,35,'lime',25);
+    drawEnemyHealth();
+    drawBox(enemyCenterX-150,10,300,80);
+>>>>>>> tidied up the enemy draw function and renamed the image files
 }
 
 let playerTurn = false;
@@ -559,7 +602,15 @@ const end = (func) => {
     clearInterval(func);
 }
 
+<<<<<<< HEAD
 const loadScreen = () => {
+=======
+const drawEnemy = ()=>{
+        enemyID = setInterval(drawEnemyImage,10)
+}
+
+const loadScreen = ()=>{
+>>>>>>> tidied up the enemy draw function and renamed the image files
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     fillText("DUNGEON BALTI ", canvas.width / 2, canvas.height / 2.75, '#00FF00', 75);
     blinkingText('Press Enter', canvas.width / 2, canvas.height / 2, 500, '#00FF00', 60);
