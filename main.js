@@ -87,13 +87,8 @@ const drawCharacterHealth = (player, x, y) => {
         hbc = 'red';
     }
     ctx.fillStyle = hbc;
-<<<<<<< HEAD
     ctx.fillRect(x + 70, y + 15, (100 - (maxHealth - player.health)), 20);
     fillText(player.health + "/" + maxHealth, x + 105, y + 60, 'lime', 20)
-=======
-    ctx.fillRect(x+70, y+15, (100-(maxHealth-player.health)), 20);
-    fillText(player.health + "/"+maxHealth,x+105,y+60,'lime',20)
->>>>>>> Update main.js
 
 }
 const drawEnemyHealth = () => {
@@ -189,7 +184,6 @@ const Character = class {
 
     }
     attack(target) {
-<<<<<<< HEAD
         let damage = Math.floor((currentPlayer.damage + RNG()) * target.defence);
         currentMessage = currentPlayer.name + " attacked " + target.name + " and caused " + damage + " damage";
         target.health -= damage;
@@ -197,25 +191,6 @@ const Character = class {
     defend() {
         currentMessage = currentPlayer.name + " raised it's shield"
         currentPlayer.defence * 0.5;
-=======
-      let damage = Math.floor((this.damage + RNG()) * target.defence);
-      console.log(
-        currentPlayer.name +
-          " attacked " +
-          target.name +
-          " and caused " +
-          damage +
-          " damage"
-      );
-      target.health -= damage;
-    }
-    defend() {
-      console.log(currentPlayer.name + " raised it's shield");
-      this.defence * 0.5;
-    }
-    resetDefence(target) {
-      target.defence = 1;
->>>>>>> Update main.js
     }
 };
 
@@ -249,15 +224,9 @@ class Mage extends Player {
         currentMessage = currentPlayer.name + " cast " + currentPlayer.element + " for " + damage + " damage";
         target.health -= damage
     }
-<<<<<<< HEAD
     attackTwo(target) {
         currentMessage = currentPlayer.name + " has focused their powers";
         currentPlayer.damage = currentPlayer.damage * 1.1;
-=======
-    focus(target){
-        console.log(this.name + " has concentrated their powers")
-        this.damage = this.damage*1.1;
->>>>>>> Update main.js
     }
 
 
@@ -323,42 +292,26 @@ class Warrior extends Player {
         currentPlayer.health -= 5;
         target.health -= 25;
     }
-<<<<<<< HEAD
     rage(target) {
         currentMessage = currentPlayer.name + " is angry";
         currentPlayer.damage = currentPlayer.damage * 1.2;
         currentPlayer.defence = currentPlayer.defence * 1.2;
-=======
-    rage(target){
-        console.log(this.name + " is angry")
-        this.damage = this.damage*1.2;
-        this.defence= this.defence*1.2;
->>>>>>> Update main.js
     }
 
 }
 
 class Enemy extends Character {
     constructor(name) {
-<<<<<<< HEAD
         super(name);
         this.name = name;
     }
     cackle(target) {
         currentMessage = currentPlayer.name + " cackled manically";
-=======
-      super(name);
-      this.name = name;
-    }
-    cackle(target) {
-      console.log(this.name + " cackled manically");
->>>>>>> Update main.js
     }
 }
 
 class Slime extends Enemy {
     constructor(element) {
-<<<<<<< HEAD
         super(element);
         this.element = element
         this.class = 'Slime'
@@ -377,23 +330,6 @@ class Slime extends Enemy {
     special(target) {
         let absorbedHealth = 10 + RNG();
         currentMessage = currentPlayer.name + " absorbed " + absorbedHealth + " of " + target.name + "'s health";
-=======
-      super(element);
-      this.element = element
-      this.class = 'Slime'
-      this.speed = 2
-      this.name = this.element+ " " + this.class;
-      this.health = 70;
-      this.defence = 1.1;
-    }
-    basic(target) {
-      console.log(currentPlayer.name + " slimed "+target.name);
-      target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
-    }
-    special(target){
-        let absorbedHealth = 10 + RNG();
-        console.log(currentPlayer.name + " absorbed " + absorbedHealth + " of "+target.name+"'s health")
->>>>>>> Update main.js
         target.health -= absorbedHealth;
         this.health += absorbedHealth;
     }
@@ -401,7 +337,6 @@ class Slime extends Enemy {
 
 class Munchkin extends Enemy {
     constructor(element) {
-<<<<<<< HEAD
         super(element);
         this.element = element
         this.class = "Munchkin"
@@ -425,52 +360,9 @@ class Munchkin extends Enemy {
     special(target) {
         currentMessage = currentPlayer.name + " roared and " + target.name + " is scared";
         target.damage = target.damage * 0.8
-=======
-      super(element);
-      this.element = element
-      this.class = "Munchkin"
-      this.name = this.element +" "+this.class;
-      this.defence = 0.9;
-      this.health = 100;
-      this.speed = 5}
-    basic(target) { //needs a target
-      console.log(
-        currentPlayer.name +
-          " raised it's sword and smashed " +
-          target.name +
-          " but it's defence has wobbled"
-      );
-      target.health -= 20 + RNG();
-      currentPlayer.defence += 0.05 * RNG();
-    }
-    special(target){
-        console.log(target.name + " is scared");
-        target.damage = target.damage*0.8
-    }
-
-  }
-  
-  class Dragon extends Enemy{
-    constructor(element){
-      super(element);
-      this.element = element
-      this.speed = 25
-      this.class = "Dragon"
-      this.health = 180
-      this.name = this.element + " Dragon";
-    }
-    basic(target){
-        let probability = (RNG() + 5)/10;
-        if (probability < 0.75){
-      console.log('FUUUUUUUUUUUUUUUUUUUUUUUU............')
-      target.health -= 70 + RNG();
-    } else {
-        console.log(target.name + " somehow rolled out of the way")
->>>>>>> Update main.js
     }
 
 }
-<<<<<<< HEAD
 
 class Dragon extends Enemy {
     constructor(element) {
@@ -497,11 +389,6 @@ class Dragon extends Enemy {
     special(target) {
         currentMessage = currentPlayer.name + " attacked " + target.name + " with elemental flames";
         target.health -= (currentPlayer.damage * battleCheck(currentPlayer, target)) + RNG();
-=======
-    special(target){
-      console.log(currentPlayer.name + " attacked " +target.name +" with elemental flames");
-      target.health -= (currentPlayer.damage * battleCheck(currentPlayer,target))+RNG();
->>>>>>> Update main.js
     }
 }
 
@@ -549,7 +436,6 @@ function battleCheck(hero, enemy) {
     } else if (output === 0) {
         return 1;
     } else if (output === -2 || output === 1) {
-<<<<<<< HEAD
         return 1.5;
     }
 }
@@ -586,51 +472,6 @@ const action = (player) => {
 }
 
 let badGuy = () => {
-=======
-      console.log("Super effective bro");
-      return 1.5;
-    }
-  }
-  let mage = new Mage(randomElement());
-  let warrior = new Warrior();
-  let healer = new Healer ()
-  let enemy;
-
-  
-
-  function getAllMethodNames(obj) {
-    let methods = new Set();
-    while (obj = Reflect.getPrototypeOf(obj)) {
-      let keys = Reflect.ownKeys(obj)
-      keys.forEach((k) => methods.add(k));
-    }
-    return [...methods];
-  }
-  
-  const action = (player)=>{
-      console.log(player)
-      if(player.class === 'Munchkin'||player.class==="Dragon"||player.class==="Slime"){
-        let targets = [healer,mage,warrior];
-        let target = targets[Math.floor(Math.random()*3)]
-        let actions = [
-          player.attack,
-          player.defend,
-          player.cackle,
-          player.basic,
-          player.special
-        ];
-        let enemyRNG = (RNG()+5);
-        if (enemyRNG > 4){
-            enemyRNG = enemyRNG - 5;
-        }
-        actions[enemyRNG](target)
-        console.log(enemyRNG)
-        actionUnpauseFunction();
-    }
-  }
- 
-  let  badGuy=()=>{
->>>>>>> Update main.js
     enemy = randomEnemy();
 }
 
@@ -659,13 +500,8 @@ const actionPauseCheck = () => {
 
 const actionUnpauseFunction = () => {
     actionPaused = false
-<<<<<<< HEAD
     let players = [warrior, mage, healer, enemy]
     for (let j = 0; j < players.length; j++) {
-=======
-    let players = [warrior,mage,healer,enemy]
-    for (let j = 0;j<players.length;j++){
->>>>>>> Update main.js
         currentPlayer.turn = 0;
         players[j].speed = temp[j];
     }
@@ -675,7 +511,6 @@ const actionUnpauseFunction = () => {
 
 let currentPlayer = null;
 
-<<<<<<< HEAD
 let speedFunction = () => {
     let players = [warrior, mage, healer, enemy]
     for (let i = 0; i < players.length; i++) {
@@ -684,17 +519,6 @@ let speedFunction = () => {
             currentPlayer = players[i];
             actionPauseFunction();
             action(currentPlayer)
-=======
-let speedFunction = ()=>{
-    let players = [warrior,mage,healer,enemy]
-      for (let i = 0;i<players.length;i++){
-          players[i].turn += players[i].speed;
-          if(players[i].turn > 500){
-              currentPlayer = players[i];
-              actionPauseFunction();
-              setTimeout(action(currentPlayer),1500);
-            }
->>>>>>> Update main.js
         }
     }
 }
