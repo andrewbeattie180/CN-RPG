@@ -32,8 +32,8 @@ function keyDownHandler(e) {
 }
 
 const drawCharacter = (character, index) => {
-    ctx.drawImage(character.image, 20, 60 + 120 * index, 100, 100);
     if (character.status === 1){
+    ctx.drawImage(character.image, 20, 60 + 120 * index, 100, 100);
     fillText(character.name.toUpperCase(), 70, 65 + 120 * index, 'lime', 15);
     drawBox(10, 50 + 120 * index, 120, 120);
     drawCharacterHealth(character, 130, 50 + 120 * index);
@@ -123,6 +123,8 @@ let playerTurn = false;
 let inventory = [];
 let stage = 1;
 let difficulty = stage * stage;
+let statusDisplayed = false;
+let inventoryDisplayed = false;
 
 let difficultyCheck = () => {
     if (difficulty >= 65) {
@@ -200,7 +202,7 @@ class Player extends Character {
     }
     openInventory() {
         if (inventory.length === 0) {
-            console.log("Oh frack, your bag is empty")
+            currentMessage = "Oh frack, your bag is empty";
         }
     }
 }
@@ -214,7 +216,7 @@ class Mage extends Player {
         this.element = element;
         this.damage = 6
         this.defence = 1.2
-        this.speed = 6
+        this.speed = 5;
         this.name = this.element + " " + this.class;
         this.attackA = "CAST SPELL"
         this.attackB = "FOCUS"
@@ -240,7 +242,7 @@ class Healer extends Player {
         this.image = imgHealer;
         this.name = this.class
         this.damage = 5
-        this.speed = 4
+        this.speed = 4.1
         this.defence = 1.2
         this.taunt = "     "
         this.attackA = "HEAL"
@@ -251,10 +253,10 @@ class Healer extends Player {
     attackOne(target) {
         currentMessage = currentPlayer.name + " healed their team"
         let team = [warrior, mage, healer]
-        for (i = 0; i < team.length; i++) {
+        for (let i = 0; i < team.length; i++) {
             team[i].health += 30 + RNG();
-            if (target.health > 100) {
-                target.health = 100;
+            if (team[i].health > 100) {
+                team[i].health = 100;
             }
         }
     }
@@ -264,8 +266,9 @@ class Healer extends Player {
             if (team[i].status == 0) {
                 currentMessage = currentPlayer.name + " casted REVIVE spell, " + team[i].name + "is revived";
                 team[i].status = 1;
+                return;
             } else {
-                currentMessage = currentPlayer.name + " tried to REVIVE " + team[i].name + " but they are already very much alive - NO EFFECT";
+             currentMessage = ('That didn\'t seem to work');
             }
         }
     }
@@ -280,20 +283,20 @@ class Warrior extends Player {
         this.name = this.class;
         this.image = imgWarrior;
         this.damage = 10
-        this.speed = 2.5
+        this.speed = 3.7
         this.defence = 0.8
         this.taunt = "     "
         this.attackA = "GO ALL OUT"
         this.attackB = "RAGE"
     }
 
-    allOutAttack(target) {
+    attackOne(target) {
         currentMessage = currentPlayer.name + " attacked with all their might and did 25 damage"
         currentPlayer.health -= 5;
         target.health -= 25;
     }
-    rage(target) {
-        currentMessage = currentPlayer.name + " is angry";
+    attackTwo(target) {
+        currentMessage = currentPlayer.name + " is angry, their stats have increased";
         currentPlayer.damage = currentPlayer.damage * 1.2;
         currentPlayer.defence = currentPlayer.defence * 1.2;
     }
@@ -402,14 +405,19 @@ const performAction = (e) => {
             currentPlayer.attack(enemy)
             endAction();
         } else if (e.keyCode == 50) {
-            currentPlayer.defend()
+            currentPlayer.attackOne(enemy)
             endAction();
         } else if (e.keyCode == 51) {
-            currentPlayer.attackOne(enemy)
+            currentPlayer.defend()
             endAction();
         } else if (e.keyCode == 52) {
             currentPlayer.attackTwo(enemy)
             endAction();
+        } else if (e.keyCode == 53) {
+            inventoryDisplayed = !inventoryDisplayed;
+            currentPlayer.openInventory();
+        } else if (e.keyCode == 54) {
+            statusDisplayed = !statusDisplayed
         }
     }
 }
@@ -487,13 +495,13 @@ const actionPauseFunction = () => {
     actionPaused = true;
     let players = [warrior, mage, healer, enemy]
     for (let j = 0; j < players.length; j++) {
-        temp.push(players[j].speed)
+        temp.push({class: players[j].class, speed: players[j].speed})
         players[j].speed = 0;
     }
 }
 
 const actionPauseCheck = () => {
-    if (actionPaused && currentPlayer !== null) {
+    if (actionPaused && currentPlayer !== null && !inventoryDisplayed) {
         currentMessage = "it is " + currentPlayer.name + "'s turn";
     }
 }
@@ -503,7 +511,7 @@ const actionUnpauseFunction = () => {
     let players = [warrior, mage, healer, enemy]
     for (let j = 0; j < players.length; j++) {
         currentPlayer.turn = 0;
-        players[j].speed = temp[j];
+        players[j].speed = temp[j].speed;
     }
     temp = [];
 }
@@ -529,12 +537,19 @@ const drawActionBox = () => {
 
 const drawActions = () => {
     ctx.clearRect(10, 500, canvas.width - 20, 190);
-    if (playerTurn === true) {
+    if (playerTurn === true && !statusDisplayed && !inventoryDisplayed) {
         fillText("1 ATTACK", canvasCenterX / 2, 560, 'lime', 45);
-        fillText('2 DEFEND', canvasCenterX / 2, 610, 'lime', 45);
-        // fillText('INVENTORY',canvasCenterX/2,660,'lime',45)
-        fillText('3 ' + currentPlayer.attackA, canvasCenterX + canvasCenterX / 2, 560, 'lime', 45);
-        fillText('4 ' + currentPlayer.attackB, canvasCenterX + canvasCenterX / 2, 610, 'lime', 45)
+        fillText('3 DEFEND', canvasCenterX / 2, 610, 'lime', 45);
+        fillText('5 INVENTORY',canvasCenterX/2,660,'lime',45)
+        fillText('2 ' + currentPlayer.attackA, canvasCenterX + canvasCenterX / 2, 560, 'lime', 45);
+        fillText('4 ' + currentPlayer.attackB, canvasCenterX + canvasCenterX / 2, 610, 'lime', 45);
+        fillText('6 STATUS', canvasCenterX +canvasCenterX/2,660, 'lime', 45);
+    } else if (playerTurn === true && statusDisplayed && !inventoryDisplayed){
+        fillText(`Health: ${currentPlayer.health}`, canvasCenterX / 2, 560, 'lime', 45);
+        fillText(`Defence: ${currentPlayer.defence}`, canvasCenterX / 2, 610, 'lime', 45);
+        fillText(`Attack: ${currentPlayer.damage}`, canvasCenterX + canvasCenterX / 2, 560, 'lime', 45);
+        // fillText(`Speed: ${}`, canvasCenterX + canvasCenterX / 2, 610, 'lime', 45);
+        fillText('6 GO BACK', canvasCenterX +canvasCenterX/2,660, 'lime', 45);
     }
 }
 
